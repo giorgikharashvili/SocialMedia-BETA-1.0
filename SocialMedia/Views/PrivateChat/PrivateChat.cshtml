@@ -1,0 +1,113 @@
+﻿@using SocialMedia.ViewModels
+@model SocialMedia.ViewModels.MessageViewModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messenger UI</title>
+    <style>
+        body {
+            background-color: #f0f2f5;
+        }
+
+        .chat-container {
+            max-width: 500px;
+            margin: auto;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            background-color: white;
+        }
+
+        .chat-header {
+            background-color: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .message {
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 15px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .sent {
+            background-color: #007bff;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .received {
+            background-color: #e4e6eb;
+            color: black;
+            align-self: flex-start;
+        }
+
+        .chat-footer {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+
+            .chat-footer input {
+                flex: 1;
+                padding: 10px;
+                border: none;
+                border-radius: 20px;
+                background-color: #f0f2f5;
+                outline: none;
+            }
+
+            .chat-footer button {
+                margin-left: 10px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 10px 15px;
+                border-radius: 20px;
+                cursor: pointer;
+            }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="chat-header">Chat with Friend</div>
+        <div class="chat-body">
+            @foreach (var message in Model.Messages)
+            {
+                <div class="message @(message.SenderId == Model.UserId ? "sent" : "received")">
+                    @message.Content
+                </div>
+            }
+        </div>
+        <div class="chat-footer">
+            <form method="post" asp-action="SendMessage" asp-controller="PrivateChat">
+                <input type="hidden" name="FriendId" value="@Model.FriendId" />
+                <input type="text" name="Content" placeholder="Type a message" required />
+                <button type="submit">Send</button>
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>

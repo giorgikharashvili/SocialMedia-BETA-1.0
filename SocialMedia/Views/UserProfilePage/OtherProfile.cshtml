@@ -1,0 +1,122 @@
+﻿@using SocialMedia.Constants;
+@using SocialMedia.ViewModels;
+@model ReelPostingViewModel;
+
+@{
+    var profileUserId = ViewBag.ProfileUserId; // Get the profile owner's user id
+}
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <button onclick="AddFriend('@Model.tempId')" class="btn btn-success btn-lg">Add Friend</button>
+    </div>
+
+    <div class="row">
+        @foreach (var reelPosting in Model.ReelPostings)
+        {
+            <div class="col-md-4 mb-4">
+                <div id="reel-posting-@reelPosting.Id" class="card shadow-sm">
+                    @if (reelPosting.ImagePath != null)
+                    {
+                        <img src="@reelPosting.ImagePath" class="card-img-top" alt="Reel Image" />
+                    }
+                    <div class="card-body">
+                        <h5 class="card-title">@reelPosting.Title</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Posted by: @reelPosting.User.UserName</h6>
+                        <p class="card-text">@reelPosting.Description</p>
+                        <p class="card-text"><small class="text-muted">Date: @reelPosting.PostedDate.ToShortDateString()</small></p>
+                    </div>
+                    @if (User.IsInRole(Roles.Admin) || reelPosting.UserId == ViewBag.CurrentUserId)
+                    {
+                        <div onclick="deleteReelPosting(@reelPosting.Id)" class="btn btn-danger btn-block">Delete</div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function AddFriend(userId) {
+            console.log('Profile User ID:', userId); // Now logging the passed userId
+
+            if (confirm("Are you sure you want to add this user as a friend?")) {
+                $.ajax({
+                    url: "@Url.Action("SendFriendRequests", "Friends")", // Make sure the URL is correct
+                    type: "POST",
+                    data: { data: userId }, // Send userId directly as a parameter
+                    dataType: 'json',
+                    success: function (response) {
+                        alert("Friend request sent successfully!");
+                    },
+                    error: function (xhr) {
+                        alert("An error occurred: " + xhr.responseText);
+                    }
+                });
+            }
+        }
+    </script>
+}
+
+<style>
+    .card {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #ddd;
+        transition: transform 0.3s ease;
+    }
+
+        .card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+    .card-img-top {
+        height: 200px;
+        object-fit: cover;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .card-title {
+        font-size: 1.2rem;
+        font-weight: bold;
+    }
+
+    .card-subtitle {
+        font-size: 1rem;
+        color: #6c757d;
+    }
+
+    .card-text {
+        font-size: 0.9rem;
+        color: #495057;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+    }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+    .btn-block {
+        width: 100%;
+        margin-top: 10px;
+    }
+</style>

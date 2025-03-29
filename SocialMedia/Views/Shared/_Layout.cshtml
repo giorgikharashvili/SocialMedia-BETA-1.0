@@ -1,0 +1,157 @@
+﻿ @using System.Linq
+ @using Microsoft.AspNetCore.Identity;
+
+@inject SocialMedia.Data.ApplicationDbContext _context
+@inject Microsoft.AspNetCore.Identity.UserManager<IdentityUser> _userManager
+
+@{
+    var userId = _userManager.GetUserId(User);
+    var friendRequests = _context.Friendships
+        .Where(f => f.AddresseeID == userId && f.Status == SocialMedia.Enums.FriendshipStatus.Pending)
+        .Select(f => new SocialMedia.ViewModels.FriendRequestViewModel
+                {
+                    RequestId = f.Id,
+                    SenderId = f.RequesterId,
+                    SenderName = _context.Users
+                                .Where(u => u.Id == f.RequesterId)
+                                .Select(u => u.UserName)
+                                .FirstOrDefault() ?? "Unknown User"
+                }).ToList();
+}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SocialMedia</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/SocialMedia.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SocialMedia</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        </li>
+
+                        @if (User.Identity.IsAuthenticated)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Post">Post</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Messenger" asp-action="Messages">Messages</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Logout">Logout</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Register">Register</a>
+                            </li>
+                        }
+                    </ul>
+
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <!-- Notifications dropdown -->
+                        <div class="dropdown d-inline-block">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Notifications
+                              
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+
+                                @if (friendRequests.Any())
+                                {
+                                    @foreach (var request in friendRequests)
+                                    {
+                                        <li class="dropdown-item d-flex justify-content-between align-items-center">
+                                            <span>@request.SenderName</span>
+                                            <form method="post" asp-controller="Friends" asp-action="AcceptFriendRequest">
+                                                <input type="hidden" name="requestId" value="@request.RequestId" />
+                                                <button type="submit" class="btn btn-success btn-sm ms-2">Accept</button>
+                                            </form>
+
+
+
+                                        </li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li class="dropdown-item">No new friend requests</li>
+                                }
+                            </ul>
+                        </div>
+
+                        <a class="nav-link text-dark" asp-controller="UserProfilePage" asp-action="UserProfile">
+                            @User.Identity.Name
+                        </a>
+                    }
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2025 - SocialMedia - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+@section Scripts {
+    <script>
+                     fetch("/Friends/AcceptFriendRequest", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": document.querySelector("input[name='__RequestVerificationToken']")?.value
+            },
+            body: JSON.stringify({ requestId: requestId })
+        })
+        .then(response => {
+            console.log("Response received:", response);
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text); });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Success:", data);
+            document.getElementById(`friend-request-${requestId}`).remove(); // Ensure the element has an ID like friend-request-1
+        })
+        .catch(error => console.error("Fetch error:", error));
+
+
+    </script>
+}
