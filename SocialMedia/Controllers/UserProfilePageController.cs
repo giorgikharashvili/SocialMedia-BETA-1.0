@@ -106,29 +106,7 @@ namespace SocialMedia.Controllers
             return View("UserProfile", viewModel); // Show logged-in user’s profile
         }
 
-        //public async Task<IActionResult> Index()
-        //{
-        //    var userId = _userManager.GetUserId(User);
-
-        //    // Fetch all posts (assuming there's a ReelPostings model)
-        //    var reelPostings = await _context.ReelPostings
-        //    .Include(r => r.User)
-        //        .ToListAsync();
-
-        //    // Fetch friends of the logged-in user
-        //    var friends = await _context.Friendships
-        //        .Where(f => (f.RequesterId == userId || f.AddresseeID == userId) && f.Status == FriendshipStatus.Accepted)
-        //        .Select(f => f.RequesterId == userId ? f.Addresse : f.Requester) // Get the actual friend
-        //        .ToListAsync();
-
-        //    var viewModel = new ReelPostingViewModel
-        //    {
-        //        ReelPostings = reelPostings,
-        //        Friends = friends
-        //    };
-
-        //    return View(viewModel);
-        //}
+      
 
     }
 
