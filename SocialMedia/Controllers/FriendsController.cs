@@ -22,7 +22,7 @@ namespace SocialMedia.Controllers
             _userManager = userManager;
         }
 
-        // ✅ Send Friend Request & Create Notification
+        //  Send Friend Request & Create Notification
         [HttpPost("send-request")]
         public async Task<IActionResult> SendFriendRequests(string? data)
         {
@@ -55,7 +55,7 @@ namespace SocialMedia.Controllers
             _context.Friendships.Add(friendship);
             await _context.SaveChangesAsync();
 
-            // ✅ Create a Notification for the Friend Request
+            //  Create a Notification for the Friend Request
             var notification = new Notification
             {
                 UserId = data,  // Recipient gets notified
@@ -70,7 +70,7 @@ namespace SocialMedia.Controllers
             return Ok("Friend request sent");
         }
 
-        // ✅ Get Pending Friend Requests
+        //  Get Pending Friend Requests
         [HttpGet("requests")]
         public async Task<IActionResult> GetFriendRequests()
         {
