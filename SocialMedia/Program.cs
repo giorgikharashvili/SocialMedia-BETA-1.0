@@ -18,11 +18,11 @@ namespace SocialMedia
             builder.Services.AddControllersWithViews();
             builder.Services.AddSignalR();
             builder.Services.AddRazorPages();
-
+            builder.Configuration.AddUserSecrets<Program>();
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("Database"));
+                options.UseSqlServer(builder.Configuration["Database"]);
             });
 
             builder.Services.AddScoped<IRepository<ReelPostings>, ReelPostingRepositories>();

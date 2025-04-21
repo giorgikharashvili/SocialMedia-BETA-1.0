@@ -119,10 +119,6 @@ namespace SocialMedia.Controllers
                 Console.WriteLine(modelError.ErrorMessage); // Log errors
             }
 
-           
-            
-
-
             return View(reelPostingVm);
         }
 
